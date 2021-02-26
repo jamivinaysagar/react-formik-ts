@@ -6,20 +6,25 @@ import { TextField } from "formik-material-ui";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import MyComponent from "./Component";
-import MyTextInput from "./TextField";
+
 interface Values {
   email: string;
   password: string;
 }
+
+// Added validation for email and password
 const FormSchema = Yup.object().shape({
+  email: Yup.string().email("Invalid email").required("Required"),
   password: Yup.string()
     .min(5, "Too Short!")
     .max(50, "Too Long!")
-    .required("Required"),
-  email: Yup.string().email("Invalid email").required("Required")
+    .required("Required")
 });
+
 export default function App() {
+  // useSelector to read the state in functional component
   const formData = useSelector((state) => state.formData);
+  // dispatch the actions
   const dispatch = useDispatch();
   return (
     <div className="App">
@@ -29,18 +34,21 @@ export default function App() {
       {formData.email}
       <br />
       {formData.password}
+
+      <MyComponent />
       <Formik
         initialValues={{
           email: "",
           password: ""
         }}
-        validationSchema={FormSchema}
+        validationSchema={FormSchema} // schema validation of formik
         onSubmit={(values, { setSubmitting }) => {
           setSubmitting(false);
+          // dispatching the  data
           dispatch({ type: "POST_DATA_SUCCESS", formData: values });
         }}
       >
-        {({ submitForm, isSubmitting, errors, touched }) => (
+        {({ submitForm, isSubmitting }) => (
           <Form>
             <Field
               component={TextField}
@@ -58,6 +66,7 @@ export default function App() {
             {isSubmitting && <LinearProgress />}
             <br />
             <Button
+              className="button-style"
               variant="contained"
               color="primary"
               disabled={isSubmitting}
@@ -68,9 +77,6 @@ export default function App() {
           </Form>
         )}
       </Formik>
-
-      {/* <MyComponent /> */}
-      {/* <MyTextInput /> */}
     </div>
   );
 }
